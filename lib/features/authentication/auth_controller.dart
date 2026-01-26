@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:information_dam/utility/show_messages.dart';
+
+import '../../model/person.dart';
+import 'auth_repository.dart';
+
+final personProvider = StateProvider<Person?>((ref) => null);
+
+final authControllerProvider = StateNotifierProvider<AuthController, bool>((ref) {
+  final authRepository = ref.read(authRepositoryProvider);
+  return AuthController(authRepository: authRepository);
+});
+
+class AuthController extends StateNotifier<bool> {
+  final AuthRepository _authRepository;
+
+  AuthController({required AuthRepository authRepository}) : _authRepository = authRepository, super(false);
+
+  useWithoutAccount(BuildContext context) async {
+    state = true;
+    final result = await _authRepository.useWithoutAccount();
+    state = false;
+    result.fold((l) => showSnackBar(context, l.message), (r) => null);
+  }
+
+  signUp(BuildContext context, String email, String password, bool wantsCommunication, {String? preference}) async {
+    state = true;
+    final result = await _authRepository.signUp(email, password, wantsCommunication, preference: preference);
+    state = false;
+    result.fold((l) async {
+      if (l.message == "The email address is already in use by another account.") {
+        final newResult = await _authRepository.logIn(email, password);
+        newResult.fold((l) => showSnackBar(context, l.message), (r) => null);
+      } else {
+        showSnackBar(context, l.message);
+      }
+    }, (r) => null);
+  }
+
+  logIn(BuildContext context, String email, String password) async {
+    state = true;
+    final result = await _authRepository.logIn(email, password);
+    state = false;
+    result.fold((l) => showSnackBar(context, l.message), (r) => null);
+  }
+}
