@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/features/authentication/auth_repository.dart';
+import 'package:information_dam/ui/auth_ui/auth_screen.dart';
 
 final kTheme = ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF006633)));
 
@@ -28,11 +29,6 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Information Dam",
-        theme: kTheme, 
-        home: Placeholder(),
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, title: "Information Dam", theme: kTheme, home: const AuthScreen());
   }
 }

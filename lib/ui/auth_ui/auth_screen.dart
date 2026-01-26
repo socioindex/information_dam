@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../utility/custom_widgets.dart';
+import '../../utility/location_service.dart';
+
+const String kLocationDisclaimer = "The use of this platform is restricted to those physically on campus, so we need your location please.";
+
+class AuthScreen extends ConsumerStatefulWidget {
+  const AuthScreen({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends ConsumerState<AuthScreen> {
+  bool _isLocated = false;
+  bool _wantsCommunication = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _preferenceController = TextEditingController();
+
+  void _createAccount() {}
+  void _logIn() {}
+  void _useAnonymously() {}
+
+  void _showLocatedLogIn() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          constraints: BoxConstraints(maxHeight: 190),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              children: [
+                customTextField(controller: _emailController, hintText: "email"),
+                customTextField(controller: _passwordController, hintText: 'password', obscureText: true),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('cancel'),
+                      ),
+                      OutlinedButton(onPressed: _logIn, child: const Text('Sign In')),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNoLocoLogin() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          constraints: BoxConstraints(maxHeight: 300),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(width: 80),
+                    Expanded(child: const Text('read only access is available for those who already have an account')),
+                    const SizedBox(width: 40),
+                  ],
+                ),
+                customTextField(controller: _emailController, hintText: "email"),
+                customTextField(controller: _passwordController, hintText: 'password', obscureText: true),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('cancel'),
+                      ),
+                      OutlinedButton(onPressed: _logIn, child: const Text('Sign In')),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLocated) {
+      return _authScreen;
+    }
+    return _opener;
+  }
+
+  Widget get _opener {
+    return Scaffold(
+      appBar: customAppBar("Welcome", hasInfoButton: true, context: context),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const Text(kLocationDisclaimer),
+              ElevatedButton(
+                onPressed: () {
+                  isProperlyLocated().then((value) {
+                    if (value) {
+                      setState(() {
+                        _isLocated = true;
+                      });
+                    } else {
+                      _showNoLocoLogin();
+                    }
+                  });
+                },
+                child: const Text('ok'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  ////////////////////////MAIN SCREEN////////////////////////////////////////////////////////
+  Widget get _authScreen {
+    return Scaffold(
+      appBar: customAppBar(
+        "So Glad You're Here!",
+        hasInfoButton: true,
+        context: context,
+        actions: [TextButton(onPressed: _showLocatedLogIn, child: const Text('Sign In'))],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  const Text('email'),
+                  customTextField(controller: _emailController, outlineField: true),
+                ],
+              ),
+              Column(
+                children: [
+                  const Text('password'),
+                  customTextField(controller: _passwordController, outlineField: true, obscureText: true),
+                ],
+              ),
+
+              CheckboxListTile(
+                title: const Text("click if you would like to recieve communication from the project team."),
+                value: _wantsCommunication,
+                onChanged: (value) {
+                  setState(() {
+                    _wantsCommunication = value!;
+                  });
+                },
+              ),
+              if (_wantsCommunication)
+                Column(
+                  children: [
+                    //TODO redo sentence "let us know what you think"
+                    Text("Please let us know what kinds of emails are good or bad for you, if you can think of any."),
+                    TextField(
+                      controller: _preferenceController,
+                      maxLines: 3,
+                      decoration: InputDecoration(border: OutlineInputBorder()),
+                    ),
+                  ],
+                ),
+              ElevatedButton(
+                onPressed: _createAccount,
+                child: const Text('create account', style: TextStyle(fontSize: 20)),
+              ),
+              TextButton(onPressed: _useAnonymously, child: const Text("(optional) use without creating an account")),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _preferenceController.dispose();
+  }
+}
