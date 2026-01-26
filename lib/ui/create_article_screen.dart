@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:information_dam/features/tags/tags_controller.dart';
 import 'package:information_dam/utility/show_messages.dart';
 import 'package:information_dam/utility/text_validation.dart';
 
@@ -20,13 +21,14 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _urlController = TextEditingController();
+  final _newTagController = TextEditingController();
   bool _titleOnly = false;
   bool _hasContent = false;
   bool _hasLink = false;
   int _pageIndex = 1;
   // 'return index' allows for the content input to be skipped from titleOnly to tags.
   int _returnIndex = 1;
-
+  String? tag; 
   void _titleAquisition() {
     if (!isValidTextValue(_titleController)) {
       showSnackyBar(context, "a title is required");
@@ -58,6 +60,8 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
       _returnIndex = returnIndex;
     });
   }
+
+  void _submitPaperWork() {}
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +189,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
 
   Widget get _page3 => Scaffold(
     appBar: AppBar(
+      title: const Text('(optional)select a tag'),
       leading: IconButton(
         onPressed: () {
           setState(() {
@@ -194,7 +199,17 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
         icon: const Icon(Icons.arrow_back),
       ),
     ),
-    body: Center(child: Text("wee need tags!")),
+    body: Column(
+      children: [
+        TextField(controller: _newTagController),
+        ElevatedButton(
+          onPressed: () {
+            ref.read(tagsControllerProvider).addTag(_newTagController.text);
+          },
+          child: const Text("do something!"),
+        ),
+      ],
+    ),
   );
 
   @override

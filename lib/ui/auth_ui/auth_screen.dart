@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:information_dam/features/authentication/auth_controller.dart';
+import 'package:information_dam/utility/text_validation.dart';
 
 import '../../utility/custom_widgets.dart';
 import '../../utility/location_service.dart';
@@ -20,9 +22,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _passwordController = TextEditingController();
   final _preferenceController = TextEditingController();
 
-  void _createAccount() {}
-  void _logIn() {}
-  void _useAnonymously() {}
+  void _createAccount() {
+    ref
+        .read(authControllerProvider.notifier)
+        .createAccount(
+          context,
+          _emailController.text,
+          _passwordController.text,
+          _wantsCommunication,
+          preference: validTextValueReturner(_preferenceController),
+        );
+  }
+
+  void _logIn() {
+    ref.read(authControllerProvider.notifier).logIn(context, _emailController.text, _passwordController.text);
+  }
+
+  void _useAnonymously() {
+    ref.read(authControllerProvider.notifier).useWithoutAccount(context);
+  }
 
   void _showLocatedLogIn() {
     showDialog(

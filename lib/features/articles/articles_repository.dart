@@ -21,7 +21,8 @@ class ArticlesRepository {
   FutureEitherFailureOr<void> postArticle(Article article) async {
     try {
       _articles.doc(article.articleId).set(article.toMap());
-      return right(_articles.doc(article.articleId).update({'timeOfCreation' : FieldValue.serverTimestamp()}));
+      return right(null);
+      return right(_articles.doc(article.articleId).update({'timeOfCreation': FieldValue.serverTimestamp()}));
     } on FirebaseException catch (e) {
       return left(Failure(e.message!));
     } catch (e) {

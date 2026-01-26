@@ -26,7 +26,7 @@ class AuthController extends StateNotifier<bool> {
     result.fold((l) => showSnackyBar(context, l.message), (r) => null);
   }
 
-  signUp(BuildContext context, String email, String password, bool wantsCommunication, {String? preference}) async {
+  createAccount(BuildContext context, String email, String password, bool wantsCommunication, {String? preference}) async {
     state = true;
     final result = await _authRepository.signUp(email, password, wantsCommunication, preference: preference);
     state = false;
