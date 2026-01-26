@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/features/authentication/auth_repository.dart';
 import 'package:information_dam/ui/auth_ui/auth_screen.dart';
+// import 'package:information_dam/ui/posting/create_article_screen_tweet.dart';
+import 'package:information_dam/ui/create_article_screen.dart';
 
 final kTheme = ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF006633)));
 
@@ -21,8 +23,6 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-
-  
   void _getData(User data) async {
     final person = await ref.read(authRepositoryProvider).getPersonData(data.uid).first;
     ref.read(personProvider.notifier).update((state) => person);
@@ -31,6 +31,6 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, title: "Information Dam", theme: kTheme, home: const AuthScreen());
+    return MaterialApp(debugShowCheckedModeBanner: false, title: "Information Dam", theme: kTheme, home: const CreateArticleScreen());
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
 
-
 import '../../model/article.dart';
 import '../../utility/show_messages.dart';
 import '../authentication/auth_controller.dart';
@@ -27,7 +26,7 @@ class ArticlesController extends StateNotifier<bool> {
     : _articlesRepository = articlesRepository,
       _ref = ref,
       super(false);
-
+  //TODO consider one post per user
   Future<void> postArticle({required String title, String? url, String? content, required BuildContext context}) async {
     state = true;
     final newId = const Uuid().v1();
@@ -43,8 +42,8 @@ class ArticlesController extends StateNotifier<bool> {
     );
     final result = await _articlesRepository.postArticle(newArticle);
     state = false;
-    result.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'Posted!');
+    result.fold((l) => showSnackyBar(context, l.message), (r) {
+      showSnackyBar(context, 'Posted!');
       Navigator.of(context).pop(newId);
     });
   }

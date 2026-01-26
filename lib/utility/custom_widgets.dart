@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:information_dam/navigation.dart';
 
-
 AppBar customAppBar(String title, {required bool hasInfoButton, required BuildContext context, List<Widget>? actions}) => AppBar(
   centerTitle: true,
   title: Text(title),
@@ -13,7 +12,7 @@ TextField customTextField({required TextEditingController controller, String? hi
   return TextField(
     controller: controller,
     obscureText: obscureText,
-    decoration: InputDecoration(border: outlineField ? OutlineInputBorder() : null, hintText: hintText),
+    decoration: InputDecoration(border: outlineField ? const OutlineInputBorder() : null, hintText: hintText),
     textAlign: TextAlign.center,
   );
 }

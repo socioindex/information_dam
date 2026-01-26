@@ -6,6 +6,7 @@ import 'package:information_dam/utility/show_messages.dart';
 import '../../model/person.dart';
 import 'auth_repository.dart';
 
+//TODO figure out stateProvider update
 final personProvider = StateProvider<Person?>((ref) => null);
 
 final authControllerProvider = StateNotifierProvider<AuthController, bool>((ref) {
@@ -22,7 +23,7 @@ class AuthController extends StateNotifier<bool> {
     state = true;
     final result = await _authRepository.useWithoutAccount();
     state = false;
-    result.fold((l) => showSnackBar(context, l.message), (r) => null);
+    result.fold((l) => showSnackyBar(context, l.message), (r) => null);
   }
 
   signUp(BuildContext context, String email, String password, bool wantsCommunication, {String? preference}) async {
@@ -32,9 +33,9 @@ class AuthController extends StateNotifier<bool> {
     result.fold((l) async {
       if (l.message == "The email address is already in use by another account.") {
         final newResult = await _authRepository.logIn(email, password);
-        newResult.fold((l) => showSnackBar(context, l.message), (r) => null);
+        newResult.fold((l) => showSnackyBar(context, l.message), (r) => null);
       } else {
-        showSnackBar(context, l.message);
+        showSnackyBar(context, l.message);
       }
     }, (r) => null);
   }
@@ -43,6 +44,6 @@ class AuthController extends StateNotifier<bool> {
     state = true;
     final result = await _authRepository.logIn(email, password);
     state = false;
-    result.fold((l) => showSnackBar(context, l.message), (r) => null);
+    result.fold((l) => showSnackyBar(context, l.message), (r) => null);
   }
 }
