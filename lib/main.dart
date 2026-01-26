@@ -21,6 +21,8 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
+
+  
   void _getData(User data) async {
     final person = await ref.read(authRepositoryProvider).getPersonData(data.uid).first;
     ref.read(personProvider.notifier).update((state) => person);
