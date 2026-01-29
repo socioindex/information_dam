@@ -27,7 +27,7 @@ class ArticlesController extends StateNotifier<bool> {
       _ref = ref,
       super(false);
   //TODO consider one post per user
-  Future<void> postArticle({required String title, String? url, String? content, required BuildContext context}) async {
+  Future<void> postArticle({required String title, String? url, String? content, required BuildContext context, String? tag}) async {
     state = true;
     final newId = const Uuid().v1();
     final person = _ref.read(personProvider)!;
@@ -39,7 +39,10 @@ class ArticlesController extends StateNotifier<bool> {
       content: content,
       agreement: [person.uid],
       disagreement: [],
+      tag: tag,
     );
+
+
     final result = await _articlesRepository.postArticle(newArticle);
     state = false;
     result.fold((l) => showSnackyBar(context, l.message), (r) {

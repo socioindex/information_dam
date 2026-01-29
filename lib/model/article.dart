@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 class Article {
   final String articleId;
@@ -8,6 +9,7 @@ class Article {
   final String? url;
   final List<String> agreement;
   final List<String> disagreement;
+  final String? tag;
   Article({
     required this.articleId,
     required this.authorId,
@@ -16,6 +18,7 @@ class Article {
     this.url,
     required this.agreement,
     required this.disagreement,
+    this.tag,
   });
 
   int get score {
@@ -34,6 +37,7 @@ class Article {
     ValueGetter<String?>? url,
     List<String>? agreement,
     List<String>? disagreement,
+    ValueGetter<String?>? tag,
   }) {
     return Article(
       articleId: articleId ?? this.articleId,
@@ -43,6 +47,7 @@ class Article {
       url: url != null ? url() : this.url,
       agreement: agreement ?? this.agreement,
       disagreement: disagreement ?? this.disagreement,
+      tag: tag != null ? tag() : this.tag,
     );
   }
 
@@ -55,6 +60,7 @@ class Article {
       'url': url,
       'agreement': agreement,
       'disagreement': disagreement,
+      'tag': tag,
     };
   }
 
@@ -67,6 +73,12 @@ class Article {
       url: map['url'],
       agreement: List<String>.from(map['agreement']),
       disagreement: List<String>.from(map['disagreement']),
+      tag: map['tag'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'Article(articleId: $articleId, authorId: $authorId, title: $title, content: $content, url: $url, agreement: $agreement, disagreement: $disagreement, tag: $tag)';
   }
 }

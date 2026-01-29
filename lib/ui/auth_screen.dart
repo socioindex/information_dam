@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/utility/text_validation.dart';
 
-import '../../utility/custom_widgets.dart';
-import '../../utility/location_service.dart';
+import 'custom_widgets.dart';
+import '../utility/location_service.dart';
 
 const String kLocationDisclaimer = "The use of this platform is restricted to those physically on campus, so we need your location please.";
 
