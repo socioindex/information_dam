@@ -22,6 +22,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _passwordController = TextEditingController();
   final _preferenceController = TextEditingController();
 
+  final _logInEmailControl = TextEditingController();
+  final _logInPassControl = TextEditingController();
+
   void _createAccount() {
     ref
         .read(authControllerProvider.notifier)
@@ -35,7 +38,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _logIn() {
-    ref.read(authControllerProvider.notifier).logIn(context, _emailController.text, _passwordController.text);
+    ref.read(authControllerProvider.notifier).logIn(context, _logInEmailControl.text, _logInPassControl.text);
   }
 
   void _useAnonymously() {
@@ -52,8 +55,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
-                customTextField(controller: _emailController, hintText: "email"),
-                customTextField(controller: _passwordController, hintText: 'password', obscureText: true),
+                customTextField(controller: _logInEmailControl, hintText: "email"),
+                customTextField(controller: _logInPassControl, hintText: 'password', obscureText: true),
                 const SizedBox(height: 15),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -66,7 +69,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         },
                         child: const Text('cancel'),
                       ),
-                      OutlinedButton(onPressed: _logIn, child: const Text('Sign In')),
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text('Sign In'),
+                      ),
                     ],
                   ),
                 ),
@@ -75,7 +83,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         );
       },
-    );
+    ).then((value) {
+      if (value) {
+        _logIn();
+      }
+    });
+    ;
   }
 
   void _showNoLocoLogin() {
@@ -105,11 +118,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.of(context).pop(false);
                         },
                         child: const Text('cancel'),
                       ),
-                      OutlinedButton(onPressed: _logIn, child: const Text('Sign In')),
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text('Sign In'),
+                      ),
                     ],
                   ),
                 ),
@@ -118,7 +136,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         );
       },
-    );
+    ).then((value) {
+      if (value) {
+        _logIn();
+      }
+    });
   }
 
   @override
@@ -227,5 +249,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _preferenceController.dispose();
+    _logInEmailControl.dispose();
+    _logInPassControl.dispose();
   }
 }
