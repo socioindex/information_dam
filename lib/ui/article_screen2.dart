@@ -4,6 +4,7 @@ import 'package:information_dam/features/comments/comments_controller.dart';
 import 'package:information_dam/features/comments/comments_repository.dart';
 import 'package:information_dam/model/article.dart';
 import 'package:information_dam/model/person.dart';
+import 'package:information_dam/utility/error_loader.dart';
 import 'package:information_dam/utility/show_messages.dart';
 import 'package:information_dam/utility/text_validation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,7 +23,7 @@ class ArticleScreen extends ConsumerStatefulWidget {
 class _ArticleScreenState extends ConsumerState<ArticleScreen> {
   final _commentController = TextEditingController();
   bool _showComments = false;
-  bool _userHasAuthored = false;
+  bool _userHasInteracted = false;
   List<Comment> _listOfComments = [];
   bool _gotComments = false;
   String? _likedCommentId;
@@ -37,8 +38,8 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
       if (comment != "") {
         _commentController.text = comment;
         setState(() {
+          _userHasInteracted = true;
           _showComments = true;
-          _userHasAuthored = true;
         });
       }
     });
@@ -64,11 +65,9 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
                         ref
                             .read(commentsControllerProvider(widget.article.articleId))
                             .addComment(context, validTextValueReturner(_commentController));
-                        setState(() async {
-                          _listOfComments = await ref.read(commentsRepositoryProvider(widget.article.articleId)).getArticleComments().first;
-                          _userHasAuthored = true;
+                        setState(() {
+                          _userHasInteracted = true;
                         });
-
                         Navigator.pop(context);
                       } else {
                         showSnackyBar(context, 'invalid input');
@@ -144,29 +143,29 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
 
   Widget _commentWidget(Comment comment) {
     final title = comment.commentText;
-    if (_userHasAuthored) {
-      if (comment.commentId == widget.person.uid) {
-        return _authoredTile(title, comment.commentId);
-      } else {
-        return _remainingTile(title);
-      }
+    if (!_userHasInteracted) {
+      return _notInteractedYetTile(title, comment.commentId);
+    } else if (comment.commentId == widget.person.uid) {
+      return _authoredTile(title, comment.commentId);
+    } else if (comment.agreement.contains(widget.person.uid)) {
+      return _likedComment(title);
     } else {
-      if (comment.commentId == _likedCommentId) {
-        return _likedComment(title);
-      } else {
-        return _notInteractedYetTile(title, comment.commentId);
-      }
+      return _remainingTile(title);
     }
   }
 
   Widget _notInteractedYetTile(String title, String commentId) {
     return ListTile(
       title: Text(title),
-      onTap: () {
-        setState(() {
-          _likedCommentId = commentId;
-        });
-      },
+      trailing: TextButton(
+        onPressed: () {
+          ref.read(commentsControllerProvider(widget.article.articleId)).agree(commentId, widget.person.uid);
+          setState(() {
+            _userHasInteracted = true;
+          });
+        },
+        child: const Text('I agree!'),
+      ),
     );
   }
 
@@ -178,7 +177,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
         onPressed: () {
           ref.read(commentsControllerProvider(widget.article.articleId)).deleteComment(commentId);
           setState(() {
-            _userHasAuthored = false;
+            _userHasInteracted = false;
           });
         },
         child: const Text('delete'),
@@ -187,15 +186,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
   }
 
   Widget _likedComment(String title) {
-    return ListTile(
-      title: Text(title),
-      tileColor: Colors.green.withAlpha(50),
-      onTap: () {
-        setState(() {
-          _likedCommentId = null;
-        });
-      },
-    );
+    return ListTile(title: Text(title), tileColor: Colors.green.withAlpha(50));
   }
 
   Widget _remainingTile(String title) {
@@ -247,8 +238,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
               //       error: (error, stackTrace) => ErrorText(error.toString()),
               //       loading: () => const Loader(),
               //     ),
-              if (!_userHasAuthored && _showComments && _likedCommentId == null)
-                ElevatedButton(onPressed: _showCommentDialog, child: const Text('Comment')),
+              if (!_userHasInteracted) ElevatedButton(onPressed: _showCommentDialog, child: const Text('Comment')),
             ],
           ),
         ),

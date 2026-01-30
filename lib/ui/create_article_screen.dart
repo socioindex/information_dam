@@ -37,6 +37,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
   // '_returnIndex' allows for the content input to be skipped from titleOnly to tags.
   int _returnIndex = 1;
   String? _tag;
+  String? _createdTag;
   List<String> tags = [];
   void _titleAquisition() {
     if (!isValidTextValue(_titleController)) {
@@ -78,7 +79,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
           context: context,
           content: (_hasContent && isValidTextValue(_contentController)) ? validTextValueReturner(_contentController) : null,
           url: _hasLink ? validTextValueReturner(_urlController) : null,
-          tag: _tag,
+          tag: _createdTag ?? _tag,
         );
   }
   //The post creation takes place over 3 pages
@@ -199,6 +200,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
           if (_hasContent)
             Expanded(
               child: TextField(
+                controller: _contentController,
                 decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "type or paste content here"),
                 maxLines: null,
                 minLines: 1,
@@ -236,7 +238,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
                   data: (data) {
                     final list = data[0].tags;
                     return DropdownButton(
-                      hint: const Text("what's a tag?"),
+                      hint: Text("choose a tag"),
                       value: _tag,
                       items: list.map((e) {
                         return DropdownMenuItem(value: e, child: Text(e));
@@ -244,6 +246,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
+                            _createdTag = null;
                             _tag = value;
                           });
                         }
@@ -257,7 +260,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
                 ),
           ),
 
-          Text(_tag ?? ""),
+          Text(_createdTag ?? _tag ?? ""),
           OutlinedButton(onPressed: _makeCustomTag, child: const Text('create new tag')),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -279,26 +282,31 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
       builder: (context) {
         return Dialog(
           constraints: BoxConstraints(maxHeight: 200),
-          child: Column(
-            children: [
-              TextField(controller: _newTagController),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(onPressed: Navigator.of(context).pop, child: const Text('cancel')),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (isValidTextValue(_newTagController)) {
-                        setState(() {
-                          _tag = validTextValueReturner(_newTagController);
-                        });
-                      }
-                    },
-                    child: const Text('add tag'),
-                  ),
-                ],
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextField(controller: _newTagController),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(onPressed: Navigator.of(context).pop, child: const Text('cancel')),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (isValidTextValue(_newTagController)) {
+                          setState(() {
+                            _createdTag = validTextValueReturner(_newTagController);
+                          });
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text('add tag'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -88,7 +88,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _logIn();
       }
     });
-    ;
+    
   }
 
   void _showNoLocoLogin() {
