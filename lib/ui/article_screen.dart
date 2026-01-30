@@ -6,9 +6,19 @@ import 'package:information_dam/model/article.dart';
 import 'package:information_dam/model/person.dart';
 import 'package:information_dam/utility/show_messages.dart';
 import 'package:information_dam/utility/text_validation.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../model/comment.dart';
+import 'custom_widgets.dart';
+
+String getMakeshiftTitle(String status) {
+  if (status == "explain") {
+    return "select a comment to agree!";
+  } else {
+    return "this screen needs work! sorry!";
+  }
+}
+
+Color goodColorShade = Colors.green.withAlpha(100);
 
 class ArticleScreen extends ConsumerStatefulWidget {
   final Article article;
@@ -21,11 +31,13 @@ class ArticleScreen extends ConsumerStatefulWidget {
 
 class _ArticleScreenState extends ConsumerState<ArticleScreen> {
   final _commentController = TextEditingController();
-  bool _showComments = false;
-  bool _userHasAuthored = false;
-  List<Comment> _listOfComments = [];
-  bool _gotComments = false;
+  List<Comment>? _listOfComments;
   String? _likedCommentId;
+  String? _originalLikedCommentId;
+  bool _hasAuthoredComment = false;
+  bool _isShowingComments = false;
+  bool _hasCommentedThisTime = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,11 +48,33 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     await ref.read(commentsControllerProvider(widget.article.articleId)).getUserComment().then((comment) {
       if (comment != "") {
         _commentController.text = comment;
-        setState(() {
-          _showComments = true;
-          _userHasAuthored = true;
-        });
       }
+    });
+  }
+
+  void _populateOnFirstShow() async {
+    await ref.read(commentsRepositoryProvider(widget.article.articleId)).getArticleComments().first.then((commentList) {
+      setState(() {
+        _listOfComments = commentList;
+
+        for (final comment in commentList) {
+          if (comment.commentId == widget.person.uid) {
+            _hasAuthoredComment = true;
+            break;
+          }
+          if (comment.agreement.contains(widget.person.uid)) {
+            _likedCommentId = comment.commentId;
+            _originalLikedCommentId = comment.commentId;
+            break;
+          }
+        }
+      });
+    });
+  }
+
+  void _populateList() async {
+    await ref.read(commentsRepositoryProvider(widget.article.articleId)).getArticleComments().first.then((value) {
+      _listOfComments = value;
     });
   }
 
@@ -48,210 +82,180 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        constraints: BoxConstraints(maxHeight: 400),
-        child: Center(
-          child: Column(
-            children: [
-              const Text("each user is limited to one comment per article"),
-              TextField(controller: _commentController),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  OutlinedButton(onPressed: Navigator.of(context).pop, child: const Text('cancel')),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (isValidTextValue(_commentController)) {
-                        ref
-                            .read(commentsControllerProvider(widget.article.articleId))
-                            .addComment(context, validTextValueReturner(_commentController));
-                        setState(() async {
-                          _listOfComments = await ref.read(commentsRepositoryProvider(widget.article.articleId)).getArticleComments().first;
-                          _userHasAuthored = true;
-                        });
+        constraints: BoxConstraints(maxHeight: 240),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text("limit one comment or interaction per article"),
+                TextField(controller: _commentController, maxLength: 140),
+                const SizedBox(height: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton(onPressed: Navigator.of(context).pop, child: const Text('cancel')),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (isValidTextValue(_commentController)) {
+                          ref
+                              .read(commentsControllerProvider(widget.article.articleId))
+                              .addComment(context, validTextValueReturner(_commentController));
+                          setState(() {
+                            _populateList();
+                            _hasAuthoredComment = true;
+                            _hasCommentedThisTime = true;
+                          });
 
-                        Navigator.pop(context);
-                      } else {
-                        showSnackyBar(context, 'invalid input');
-                      }
-                    },
-                    child: const Text('comment'),
-                  ),
-                ],
-              ),
-            ],
+                          Navigator.pop(context);
+                        } else {
+                          showSnackyBar(context, 'invalid input');
+                        }
+                      },
+                      child: const Text('comment'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  Widget get _titleText {
-    return Text(widget.article.title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold));
-  }
-
-  TextStyle get _urlStyle => TextStyle(fontSize: 20);
-
-  Widget get _urlButton => TextButton(
-    onPressed: () async {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("You are about to go to ${widget.article.url!}"),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('OK'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('NO WAY'),
-              ),
-            ],
-          );
-        },
-      ).then((value) async {
-        if (value == true) {
-          final Uri url = Uri.parse(widget.article.url!);
-          if (!await launchUrl(url)) {
-            throw Exception('Could not launch $url');
-          }
-        }
-      });
-    },
-    child: Text(widget.article.url!, style: _urlStyle),
-  );
-
-  //TODO style content
-  Widget get _contentWidget => Text(widget.article.content!);
-
-  void _showCommentList() {
-    if (!_gotComments) {
-      setState(() async {
-        _listOfComments = await ref.read(commentsRepositoryProvider(widget.article.articleId)).getArticleComments().first;
-      });
-
-      _gotComments = true;
-    }
-    setState(() {
-      _showComments = !_showComments;
-    });
-  }
-
-  Widget _commentWidget(Comment comment) {
-    final title = comment.commentText;
-    if (_userHasAuthored) {
-      if (comment.commentId == widget.person.uid) {
-        return _authoredTile(title, comment.commentId);
-      } else {
-        return _remainingTile(title);
-      }
-    } else {
-      if (comment.commentId == _likedCommentId) {
-        return _likedComment(title);
-      } else {
-        return _notInteractedYetTile(title, comment.commentId);
-      }
-    }
-  }
-
-  Widget _notInteractedYetTile(String title, String commentId) {
-    return ListTile(
-      title: Text(title),
-      onTap: () {
-        setState(() {
-          _likedCommentId = commentId;
-        });
-      },
-    );
-  }
-
-  Widget _authoredTile(String title, String commentId) {
-    return ListTile(
-      title: Text(title),
-      tileColor: Colors.blue.withAlpha(50),
-      trailing: TextButton(
-        onPressed: () {
-          ref.read(commentsControllerProvider(widget.article.articleId)).deleteComment(commentId);
-          setState(() {
-            _userHasAuthored = false;
-          });
-        },
-        child: const Text('delete'),
-      ),
-    );
-  }
-
-  Widget _likedComment(String title) {
-    return ListTile(
-      title: Text(title),
-      tileColor: Colors.green.withAlpha(50),
-      onTap: () {
-        setState(() {
-          _likedCommentId = null;
-        });
-      },
-    );
-  }
-
-  Widget _remainingTile(String title) {
-    return ListTile(title: Text(title));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.article.tag ?? "What do you think?")),
-      body: Center(
-        child: Padding(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (_likedCommentId != _originalLikedCommentId) {
+          final commentController = ref.read(commentsControllerProvider(widget.article.articleId));
+          if (_originalLikedCommentId != null) {
+            commentController.unAgree(_originalLikedCommentId!, widget.person.uid);
+          }
+          if (_likedCommentId != null) {
+            commentController.agree(_likedCommentId!, widget.person.uid);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(getMakeshiftTitle(_isShowingComments ? "explain" : ""))),
+        body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _titleText,
-              if (widget.article.url != null) _urlButton,
-              if (widget.article.content != null) _contentWidget,
-              OutlinedButton(
-                onPressed: () {
-                  _showCommentList();
-                },
-                child: Text(_showComments ? "hide comments" : "show comments"),
-              ),
-              if (_showComments)
-                ListView.builder(
-                  itemCount: _listOfComments.length,
-                  itemBuilder: (context, index) {
-                    final comment = _listOfComments[index];
-                    return _commentWidget(comment);
-                  },
-                ),
-              // ref
-              //     .watch(articleCommentsProvider(widget.article.articleId))
-              //     .when(
-              //       data: (comments) {
-              //         return Expanded(
-              //           child: ListView.builder(
-              //             itemCount: comments.length,
-              //             itemBuilder: (context, index) {
-              //               final comment = comments[index];
+          child: Center(
+            child: Column(
+              children: [
+                Flexible(
+                  flex: 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ArticleDetail.titleText(widget.article.title),
 
-              //               return _commentWidget(comment);
-              //             },
-              //           ),
-              //         );
-              //       },
-              //       error: (error, stackTrace) => ErrorText(error.toString()),
-              //       loading: () => const Loader(),
-              //     ),
-              if (!_userHasAuthored && _showComments && _likedCommentId == null)
-                ElevatedButton(onPressed: _showCommentDialog, child: const Text('Comment')),
-            ],
+                      Column(
+                        children: [
+                          if (widget.article.url != null) ArticleDetail.urlButton(widget.article.url!, context),
+                          if (widget.article.content != null) ArticleDetail.contentText(widget.article.content!),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_listOfComments == null) {
+                                _populateOnFirstShow();
+                              }
+                              setState(() {
+                                _isShowingComments = !_isShowingComments;
+                              });
+                            },
+                            child: Text(_isShowingComments ? "hide comments" : "show comments"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (_isShowingComments)
+                  Flexible(
+                    flex: 5,
+                    child: Column(
+                      children: [
+                        (_listOfComments == null || _listOfComments!.isEmpty)
+                            ? const Text('no comments yet')
+                            : Expanded(
+                                child: ListView.builder(
+                                  itemCount: _listOfComments!.length,
+                                  itemBuilder: (context, index) {
+                                    final comment = _listOfComments![index];
+                                    return _commentTile(comment, index);
+                                  },
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                if (_isShowingComments)
+                  Flexible(
+                    flex: 1,
+                    child: _hasCommentedThisTime
+                        ? Container()
+                        : _likedCommentId != null
+                        ? const Text('cannot comment')
+                        : ElevatedButton(onPressed: _showCommentDialog, child: Text(_hasAuthoredComment ? "change comment" : "add comment")),
+                  ),
+                if (!_isShowingComments) Flexible(flex: 5, child: Container()),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _commentTile(Comment comment, int index) {
+    if (_hasAuthoredComment) {
+      if (comment.commentId == widget.person.uid) {
+        return _authoredTile(comment, index);
+      } else {
+        return ListTile(title: Center(child: Text(comment.commentText)));
+      }
+    }
+    if (_likedCommentId == comment.commentId) {
+      return ListTile(
+        tileColor: goodColorShade,
+        title: Center(child: Text(comment.commentText)),
+        onTap: () {
+          setState(() {
+            _likedCommentId = null;
+          });
+        },
+      );
+    } else {
+      return ListTile(
+        title: Center(child: Text(comment.commentText)),
+        onTap: () {
+          setState(() {
+            _likedCommentId = comment.commentId;
+          });
+        },
+      );
+    }
+  }
+
+  Widget _authoredTile(Comment comment, int index) {
+    return ListTile(
+      leading: Text(comment.scoreStr),
+      tileColor: Colors.blue.withAlpha(50),
+      title: Center(child: Text(comment.commentText)),
+      trailing: TextButton(
+        onPressed: () {
+          ref.read(commentsControllerProvider(widget.article.articleId)).deleteComment(widget.person.uid);
+          setState(() {
+            _listOfComments!.removeAt(index);
+            _likedCommentId = null;
+            _hasAuthoredComment = false;
+            _hasCommentedThisTime = true;
+          });
+        },
+        child: const Text('delete'),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:information_dam/model/article.dart';
-import 'package:information_dam/ui/article_screen3.dart';
+import 'package:information_dam/ui/article_screen.dart';
 import 'package:information_dam/ui/create_article_screen.dart';
 import 'package:information_dam/ui/info_page.dart';
 
