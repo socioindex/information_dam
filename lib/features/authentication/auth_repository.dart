@@ -43,6 +43,10 @@ class AuthRepository {
     }
   }
 
+  signOut() {
+    _auth.signOut();
+  }
+
   FutureEitherFailureOr<void> signUp(String email, String password, bool wantsCommunication, {String? preference}) async {
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);

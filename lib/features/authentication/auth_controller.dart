@@ -46,4 +46,11 @@ class AuthController extends StateNotifier<bool> {
     state = false;
     result.fold((l) => showSnackyBar(context, l.message), (r) => null);
   }
+
+  signOut(BuildContext context) {
+    _authRepository.signOut();
+    while (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+  }
 }

@@ -42,7 +42,6 @@ class ArticlesController extends StateNotifier<bool> {
       tag: tag,
     );
 
-
     final result = await _articlesRepository.postArticle(newArticle);
     state = false;
     result.fold((l) => showSnackyBar(context, l.message), (r) {
@@ -58,5 +57,5 @@ class ArticlesController extends StateNotifier<bool> {
   void unAgree(String articleId, String userId) => _articlesRepository.unAgree(articleId, userId);
   void unDisagree(String articleId, String userId) => _articlesRepository.unDisagree(articleId, userId);
 
-  // void delete(String articleId) => _articlesRepository.delete(articleId);
+  void delete(String articleId) => _articlesRepository.delete(articleId);
 }

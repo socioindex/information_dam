@@ -57,8 +57,8 @@ class ArticlesRepository {
     });
   }
 
-  // void delete(String articleId) async {
-  //   await _articles.doc(articleId).update({'comments': FieldValue.delete()});
-  //   await _articles.doc(articleId).delete();
-  // }
+  void delete(String articleId) async {
+    await _articles.doc(articleId).update({'comments': FieldValue.delete()});
+    await _articles.doc(articleId).delete();
+  }
 }

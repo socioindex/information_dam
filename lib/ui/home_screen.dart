@@ -63,6 +63,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         leading: IconButton(
           onPressed: () {
             ref.read(articlesControllerProvider.notifier).disagree(article.articleId, person.uid);
+            if (article.score < 0) {
+              ref.read(articlesControllerProvider.notifier).delete(article.articleId);
+            }
           },
           icon: const Icon(Icons.arrow_downward),
         ),

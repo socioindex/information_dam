@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/articles/articles_controller.dart';
+import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/features/tags/tags_controller.dart';
 import 'package:information_dam/utility/show_messages.dart';
 import 'package:information_dam/utility/text_validation.dart';
@@ -213,6 +214,11 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
   );
 
   Widget get _page3 => Scaffold(
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        ref.read(authControllerProvider.notifier).signOut(context);
+      },
+    ),
     appBar: AppBar(
       title: const Text('add a tag'),
       leading: IconButton(
