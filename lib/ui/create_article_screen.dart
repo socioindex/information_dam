@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/articles/articles_controller.dart';
-import 'package:information_dam/features/authentication/auth_controller.dart';
-import 'package:information_dam/features/tags/tags_controller.dart';
+import 'package:information_dam/ui/custom_widgets.dart';
 import 'package:information_dam/utility/show_messages.dart';
 import 'package:information_dam/utility/text_validation.dart';
 
@@ -10,14 +9,7 @@ const String kDontPostUnless =
     "We are not looking for original thoughts. Pick something anyone would agree with, even if it's obvious! Maybe something simple is more important than we realize. If it turns out meh you can ask your peers for downvotes so it gets deleted quickly.";
 
 const String kTypesOfPosts =
-    "You can share a /twi:t/ lengthed statement or you can use that field as a title to share a link or additional content. Copy and pasting is recommended, our in-house-text-editor is still under construction.";
-
-//TODO fix up second line
-const String kExplanationOfTags =
-    'Here we allow users to associate their post with one keyword, or "tag". This is entirely optional, and still an open question as to whether or not it adds value. In addition to allowing users to sort and search posts, it might help users think more concretely about what to post. \n the former is of little concern, there aren\'t going to be many posts. ';
-const String kExplanationOfTags2 =
-    "Here we allow users to associate their post with one keyword, or \"tag\". This is entirely optional, and still an open question as to whether or not it adds value, or even if it will be implemented in any meaningful way.";
-const String kExplanationOfTags3 = "HERE BE SOME EXPLANAITION I DONT FEEEL LIKE TYPING OUT RIGHT NOW";
+    "You can share a short statement or you can use that field as a title to share a link or additional content. Copy and pasting is recommended, our in-house-text-editor is still under construction.";
 
 class CreateArticleScreen extends ConsumerStatefulWidget {
   const CreateArticleScreen({super.key});
@@ -30,16 +22,13 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _urlController = TextEditingController();
-  final _newTagController = TextEditingController();
   bool _titleOnly = false;
   bool _hasContent = false;
   bool _hasLink = false;
   int _pageIndex = 1;
-  // '_returnIndex' allows for the content input to be skipped from titleOnly to tags.
+  // '_returnIndex' allows for the content input to be skipped from titleOnly to page 3
   int _returnIndex = 1;
-  String? _tag;
-  String? _createdTag;
-  List<String> tags = [];
+
   void _titleAquisition() {
     if (!isValidTextValue(_titleController)) {
       showSnackyBar(context, "a title is required");
@@ -48,7 +37,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
       showSnackyBar(context, 'please specify the type of post.');
       return;
     } else if (_titleOnly) {
-      _goToTagSelection(1);
+      _goToPage3(1);
       return;
     } else {
       setState(() {
@@ -61,11 +50,11 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
     if (_hasLink && !isValidLink(_urlController)) {
       showSnackyBar(context, "Please enter a valid url");
     } else {
-      _goToTagSelection(2);
+      _goToPage3(2);
     }
   }
 
-  void _goToTagSelection(int returnIndex) {
+  void _goToPage3(int returnIndex) {
     setState(() {
       _pageIndex = 3;
       _returnIndex = returnIndex;
@@ -80,13 +69,12 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
           context: context,
           content: (_hasContent && isValidTextValue(_contentController)) ? validTextValueReturner(_contentController) : null,
           url: _hasLink ? validTextValueReturner(_urlController) : null,
-          tag: _createdTag ?? _tag,
         );
   }
   //The post creation takes place over 3 pages
   // The first has kDontPostUnless and kTypesOfPost and asks for a title.
   // the second is for content and a link
-  // the third is for tags
+  // the third used to be for tags
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +99,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              textAlign: TextAlign.center,
               onChanged: (_) {
                 if (!_titleOnly && !_hasContent && !_hasLink) {
                   setState(() {
@@ -119,8 +108,8 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
                 }
               },
               controller: _titleController,
-              maxLength: 140,
-              decoration: const InputDecoration(hintText: 'title'),
+              maxLength: 70,
+              decoration:  InputDecoration(hintText: _titleOnly ? "statement" :"title"),
             ),
           ),
           CheckboxListTile(
@@ -212,15 +201,10 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
       ),
     ),
   );
-
+//TODO make this page match articleDetail
   Widget get _page3 => Scaffold(
-    floatingActionButton: FloatingActionButton(
-      onPressed: () {
-        ref.read(authControllerProvider.notifier).signOut(context);
-      },
-    ),
     appBar: AppBar(
-      title: const Text('add a tag'),
+      title: const Text('Your Post:'),
       leading: IconButton(
         onPressed: () {
           setState(() {
@@ -232,92 +216,19 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
     ),
     body: Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(kExplanationOfTags3),
-
-          Flexible(
-            child: ref
-                .watch(tagsFeedProvider)
-                .when(
-                  data: (data) {
-                    final list = data[0].tags;
-                    return DropdownButton(
-                      hint: Text("choose a tag"),
-                      value: _tag,
-                      items: list.map((e) {
-                        return DropdownMenuItem(value: e, child: Text(e));
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _createdTag = null;
-                            _tag = value;
-                          });
-                        }
-                      },
-                    );
-                  },
-                  error: (error, _) {
-                    return const Text("tag list not avaiable");
-                  },
-                  loading: () => Text("tag list loading"),
-                ),
-          ),
-
-          Text(_createdTag ?? _tag ?? ""),
-          OutlinedButton(onPressed: _makeCustomTag, child: const Text('create new tag')),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const SizedBox(width: 10.0),
-
-              ElevatedButton(onPressed: _submitPaperWork, child: const Text("SUBMIT PAPERWORK")),
-              const SizedBox(width: 10.0),
-            ],
-          ),
-        ],
+      child: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
+            ArticleDetail.titleText(validTextValueReturner(_titleController)),
+            if(_hasLink)
+            ArticleDetail.urlButton(validTextValueReturner(_urlController), context),
+            if(_hasContent)
+            ArticleDetail.contentText(validTextValueReturner(_contentController)),
+            ElevatedButton(onPressed: _submitPaperWork, child: const Text("Post!")),
+            const SizedBox(height: 10,)
+        ]),
       ),
     ),
   );
-
-  void _makeCustomTag() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          constraints: BoxConstraints(maxHeight: 200),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextField(controller: _newTagController),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(onPressed: Navigator.of(context).pop, child: const Text('cancel')),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (isValidTextValue(_newTagController)) {
-                          setState(() {
-                            _createdTag = validTextValueReturner(_newTagController);
-                          });
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      child: const Text('add tag'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   void dispose() {

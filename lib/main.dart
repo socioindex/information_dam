@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/features/authentication/auth_repository.dart';
 import 'package:information_dam/ui/auth_screen.dart';
-import 'package:information_dam/ui/home_screen.dart';
+import 'package:information_dam/ui/home_page.dart';
 import 'package:information_dam/utility/error_loader.dart';
 import 'package:information_dam/utility/firebase_tools/firebase_options.dart';
 
@@ -43,7 +43,7 @@ class _AppState extends ConsumerState<App> {
             data: (data) {
               if (data != null) {
                 _getData(data);
-                return const HomeScreen();
+                return const HomePage();
               }
 
               return const AuthScreen();

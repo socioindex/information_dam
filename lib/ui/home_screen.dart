@@ -29,7 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final user = ref.watch(personProvider)!;
     return Scaffold(
       appBar: customAppBar(
-        user.alias!,
+        user.alias,
         hasInfoButton: true,
         context: context,
         actions: [TextButton(onPressed: () => GoTo.createPostScreen(context), child: const Text("create"))],

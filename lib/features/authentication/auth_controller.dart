@@ -19,6 +19,7 @@ class AuthController extends StateNotifier<bool> {
 
   AuthController({required AuthRepository authRepository}) : _authRepository = authRepository, super(false);
 
+//TODO figure out how to snackbar username
   useWithoutAccount(BuildContext context) async {
     state = true;
     final result = await _authRepository.useWithoutAccount();
@@ -37,7 +38,7 @@ class AuthController extends StateNotifier<bool> {
       } else {
         showSnackyBar(context, l.message);
       }
-    }, (alias) => showSnackyBar(context, "Your username is $alias"));
+    }, (r) {}); //(alias) => showSnackyBar(context, "Your username is $alias"));
   }
 
   logIn(BuildContext context, String email, String password) async {

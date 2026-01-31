@@ -27,7 +27,7 @@ class ArticlesController extends StateNotifier<bool> {
       _ref = ref,
       super(false);
   //TODO consider one post per user
-  Future<void> postArticle({required String title, String? url, String? content, required BuildContext context, String? tag}) async {
+  Future<void> postArticle({required String title, String? url, String? content, required BuildContext context}) async {
     state = true;
     final newId = const Uuid().v1();
     final person = _ref.read(personProvider)!;
