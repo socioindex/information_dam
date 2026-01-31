@@ -23,7 +23,7 @@ class AuthController extends StateNotifier<bool> {
     state = true;
     final result = await _authRepository.useWithoutAccount();
     state = false;
-    result.fold((l) => showSnackyBar(context, l.message), (r) => null);
+    result.fold((l) => showSnackyBar(context, l.message), (alias) => showSnackyBar(context, "Your username is $alias"));
   }
 
   createAccount(BuildContext context, String email, String password, bool wantsCommunication, {String? preference}) async {
@@ -37,7 +37,7 @@ class AuthController extends StateNotifier<bool> {
       } else {
         showSnackyBar(context, l.message);
       }
-    }, (r) => null);
+    }, (alias) => showSnackyBar(context, "Your username is $alias"));
   }
 
   logIn(BuildContext context, String email, String password) async {

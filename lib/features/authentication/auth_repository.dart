@@ -31,13 +31,13 @@ class AuthRepository {
     return _people.doc(uid).snapshots().map((event) => Person.fromMap(event.data() as Map<String, dynamic>));
   }
 
-  FutureEitherFailureOr<void> useWithoutAccount() async {
+  FutureEitherFailureOr<String> useWithoutAccount() async {
     try {
       final anonCredential = await _auth.signInAnonymously();
       final newName = NameGenerator.name; 
       final newPerson = Person(uid: anonCredential.user!.uid, alias: newName);
       await _people.doc(newPerson.uid).set(newPerson.toMap());
-      return right(null);
+      return right(newName);
     } on FirebaseException catch (e) {
       return left(Failure(e.message!));
     } catch (e) {
@@ -49,7 +49,7 @@ class AuthRepository {
     _auth.signOut();
   }
 
-  FutureEitherFailureOr<void> signUp(String email, String password, bool wantsCommunication, {String? preference}) async {
+  FutureEitherFailureOr<String> signUp(String email, String password, bool wantsCommunication, {String? preference}) async {
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       final newName = NameGenerator.name;
@@ -59,7 +59,7 @@ class AuthRepository {
       if (wantsCommunication) {
         await _people.doc(person.uid).update({"EMAIL ME": preference});
       }
-      return right(null);
+      return right(newName);
     } on FirebaseException catch (e) {
       return left(Failure(e.message!));
     } catch (e) {
