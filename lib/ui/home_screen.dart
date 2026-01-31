@@ -8,6 +8,8 @@ import 'package:information_dam/navigation.dart';
 import 'package:information_dam/ui/custom_widgets.dart';
 import 'package:information_dam/utility/error_loader.dart';
 
+const Icon kLinkIndicator = Icon(Icons.link, size: 16);
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,7 +24,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _articlesViewed.add(articleId);
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     final user = ref.watch(personProvider)!;
     return Scaffold(
@@ -50,7 +52,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-    Widget _articleTile(Article article, Person person) {
+  Widget _articleTile(Article article, Person person) {
     if (article.authorId == person.uid) {
       return ListTile(
         onTap: () => GoTo.articleDetailScreen(context, article, person, null),
@@ -97,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           },
           icon: const Icon(Icons.arrow_downward),
         ),
-        title: Center(child: Row(children: [Text(article.title), Icon(Icons.link, size: 10)])),
+        title: Center(child: Row(children: [Text(article.title), kLinkIndicator])),
         trailing: IconButton(
           onPressed: () {
             ref.read(articlesControllerProvider.notifier).agree(article.articleId, person.uid);
@@ -108,10 +110,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     return ListTile(
-      title: Center(child: Row(children: [Text(article.title), Icon(Icons.link, size: 10)])),
+      title: Center(child: Row(children: [Text(article.title), kLinkIndicator])),
       onTap: () => GoTo.articleDetailScreen(context, article, person, unlockVoting(article.articleId)),
     );
   }
-
- 
 }

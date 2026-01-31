@@ -6,22 +6,24 @@ import 'package:flutter/widgets.dart';
 class Person {
   final String uid;
   final String? email;
-  final String? alias; 
+  final String alias; 
   Person({
     required this.uid,
     this.email,
-    this.alias,
+    required this.alias,
   });
+
+
 
   Person copyWith({
     String? uid,
     ValueGetter<String?>? email,
-    ValueGetter<String?>? alias,
+    String? alias,
   }) {
     return Person(
       uid: uid ?? this.uid,
       email: email != null ? email() : this.email,
-      alias: alias != null ? alias() : this.alias,
+      alias: alias ?? this.alias,
     );
   }
 
@@ -37,14 +39,27 @@ class Person {
     return Person(
       uid: map['uid'] ?? '',
       email: map['email'],
-      alias: map['alias'],
+      alias: map['alias'] ?? '',
     );
   }
 
+  String toJson() => json.encode(toMap());
 
+  factory Person.fromJson(String source) => Person.fromMap(json.decode(source));
 
   @override
   String toString() => 'Person(uid: $uid, email: $email, alias: $alias)';
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is Person &&
+      other.uid == uid &&
+      other.email == email &&
+      other.alias == alias;
+  }
 
+  @override
+  int get hashCode => uid.hashCode ^ email.hashCode ^ alias.hashCode;
 }

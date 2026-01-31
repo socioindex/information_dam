@@ -39,7 +39,7 @@ class ArticlesController extends StateNotifier<bool> {
       content: content,
       agreement: [person.uid],
       disagreement: [],
-      tag: tag,
+      authorAlias: person.alias
     );
 
     final result = await _articlesRepository.postArticle(newArticle);

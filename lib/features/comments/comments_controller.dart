@@ -28,7 +28,7 @@ class CommentsController {
   void addComment(BuildContext context, String commentText) async {
     final person = _ref.read(personProvider)!;
 
-    final comment = Comment(commentText: commentText, commentId: person.uid, agreement: [], disagreement: []);
+    final comment = Comment(commentText: commentText, commentId: person.uid, agreement: [], authorAlias: person.alias);
     final result = await _commentRepository.addComment(comment);
 
     result.fold((l) => showSnackyBar(context, l.message), (r) => null);

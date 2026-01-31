@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 class Article {
   final String articleId;
@@ -9,7 +9,7 @@ class Article {
   final String? url;
   final List<String> agreement;
   final List<String> disagreement;
-  final String? tag;
+  final String authorAlias; 
   Article({
     required this.articleId,
     required this.authorId,
@@ -18,16 +18,17 @@ class Article {
     this.url,
     required this.agreement,
     required this.disagreement,
-    this.tag,
+    required this.authorAlias,
   });
 
-  int get score {
+    int get score {
     return (agreement.length - disagreement.length);
   }
 
   String get scoreStr {
     return score.toString();
   }
+
 
   Article copyWith({
     String? articleId,
@@ -37,7 +38,7 @@ class Article {
     ValueGetter<String?>? url,
     List<String>? agreement,
     List<String>? disagreement,
-    ValueGetter<String?>? tag,
+    String? authorAlias,
   }) {
     return Article(
       articleId: articleId ?? this.articleId,
@@ -47,7 +48,7 @@ class Article {
       url: url != null ? url() : this.url,
       agreement: agreement ?? this.agreement,
       disagreement: disagreement ?? this.disagreement,
-      tag: tag != null ? tag() : this.tag,
+      authorAlias: authorAlias ?? this.authorAlias,
     );
   }
 
@@ -60,7 +61,7 @@ class Article {
       'url': url,
       'agreement': agreement,
       'disagreement': disagreement,
-      'tag': tag,
+      'authorAlias': authorAlias,
     };
   }
 
@@ -73,12 +74,43 @@ class Article {
       url: map['url'],
       agreement: List<String>.from(map['agreement']),
       disagreement: List<String>.from(map['disagreement']),
-      tag: map['tag'],
+      authorAlias: map['authorAlias'] ?? '',
     );
   }
 
+  String toJson() => json.encode(toMap());
+
+  factory Article.fromJson(String source) => Article.fromMap(json.decode(source));
+
   @override
   String toString() {
-    return 'Article(articleId: $articleId, authorId: $authorId, title: $title, content: $content, url: $url, agreement: $agreement, disagreement: $disagreement, tag: $tag)';
+    return 'Article(articleId: $articleId, authorId: $authorId, title: $title, content: $content, url: $url, agreement: $agreement, disagreement: $disagreement, authorAlias: $authorAlias)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is Article &&
+      other.articleId == articleId &&
+      other.authorId == authorId &&
+      other.title == title &&
+      other.content == content &&
+      other.url == url &&
+      listEquals(other.agreement, agreement) &&
+      listEquals(other.disagreement, disagreement) &&
+      other.authorAlias == authorAlias;
+  }
+
+  @override
+  int get hashCode {
+    return articleId.hashCode ^
+      authorId.hashCode ^
+      title.hashCode ^
+      content.hashCode ^
+      url.hashCode ^
+      agreement.hashCode ^
+      disagreement.hashCode ^
+      authorAlias.hashCode;
   }
 }

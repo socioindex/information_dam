@@ -2,11 +2,11 @@ import 'dart:math';
 
 class NameGenerator {
   static List<String> get _adjectives {
-    return ["Absolute", "Belligerent", "Conspiring", "Dastardly"];
+    return ["Absolute", "Belligerent", "Conspiring", "Dastardly", "Excellent"];
   }
 
   static List<String> get _nouns {
-    return ["Antagonist", "Butler","Cadavre", "Dumbwaiter"];
+    return ["Antagonist", "Butler","Cadavre", "Dumbwaiter", "Entropy"];
   }
 
   static String randomWord(List<String> words) {
