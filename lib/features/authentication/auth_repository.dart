@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:information_dam/features/authentication/name_generator.dart';
 import '../../model/person.dart';
 import '../../utility/firebase_tools/firebase_providers.dart';
 import '../../utility/type_defs.dart';
@@ -33,7 +34,8 @@ class AuthRepository {
   FutureEitherFailureOr<void> useWithoutAccount() async {
     try {
       final anonCredential = await _auth.signInAnonymously();
-      final newPerson = Person(uid: anonCredential.user!.uid);
+      final newName = NameGenerator.name; 
+      final newPerson = Person(uid: anonCredential.user!.uid, alias: newName);
       await _people.doc(newPerson.uid).set(newPerson.toMap());
       return right(null);
     } on FirebaseException catch (e) {
@@ -50,7 +52,8 @@ class AuthRepository {
   FutureEitherFailureOr<void> signUp(String email, String password, bool wantsCommunication, {String? preference}) async {
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      final person = Person(uid: userCredential.user!.uid, email: email);
+      final newName = NameGenerator.name;
+      final person = Person(uid: userCredential.user!.uid, email: email, alias: newName);
 
       await _people.doc(person.uid).set(person.toMap());
       if (wantsCommunication) {

@@ -22,7 +22,7 @@ class ArticlesRepository {
     try {
       _articles.doc(article.articleId).set(article.toMap());
       return right(null);
-      return right(_articles.doc(article.articleId).update({'timeOfCreation': FieldValue.serverTimestamp()}));
+      // return right(_articles.doc(article.articleId).update({'timeOfCreation': FieldValue.serverTimestamp()}));
     } on FirebaseException catch (e) {
       return left(Failure(e.message!));
     } catch (e) {

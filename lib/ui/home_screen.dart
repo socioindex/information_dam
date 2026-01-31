@@ -22,7 +22,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _articlesViewed.add(articleId);
   }
 
-  Widget _articleTile(Article article, Person person) {
+ @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(personProvider)!;
+    return Scaffold(
+      appBar: customAppBar(
+        user.alias!,
+        hasInfoButton: true,
+        context: context,
+        actions: [TextButton(onPressed: () => GoTo.createPostScreen(context), child: const Text("create"))],
+      ),
+      body: ref
+          .watch(articleFeedProvider)
+          .when(
+            data: (listOfArticles) {
+              return ListView.builder(
+                itemCount: listOfArticles.length,
+                itemBuilder: (context, index) {
+                  final article = listOfArticles[index];
+                  return _articleTile(article, user);
+                },
+              );
+            },
+            error: (error, stackTrace) => ErrorPage(error.toString()),
+            loading: () => const Loader(),
+          ),
+    );
+  }
+
+    Widget _articleTile(Article article, Person person) {
     if (article.authorId == person.uid) {
       return ListTile(
         onTap: () => GoTo.articleDetailScreen(context, article, person, null),
@@ -69,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           },
           icon: const Icon(Icons.arrow_downward),
         ),
-        title: Center(child: Text(article.title)),
+        title: Center(child: Row(children: [Text(article.title), Icon(Icons.link, size: 10)])),
         trailing: IconButton(
           onPressed: () {
             ref.read(articlesControllerProvider.notifier).agree(article.articleId, person.uid);
@@ -80,36 +108,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     return ListTile(
-      title: Center(child: Text(article.title)),
+      title: Center(child: Row(children: [Text(article.title), Icon(Icons.link, size: 10)])),
       onTap: () => GoTo.articleDetailScreen(context, article, person, unlockVoting(article.articleId)),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final user = ref.watch(personProvider)!;
-    return Scaffold(
-      appBar: customAppBar(
-        "this is home screen",
-        hasInfoButton: true,
-        context: context,
-        actions: [TextButton(onPressed: () => GoTo.createPostScreen(context), child: const Text("create"))],
-      ),
-      body: ref
-          .watch(articleFeedProvider)
-          .when(
-            data: (listOfArticles) {
-              return ListView.builder(
-                itemCount: listOfArticles.length,
-                itemBuilder: (context, index) {
-                  final article = listOfArticles[index];
-                  return _articleTile(article, user);
-                },
-              );
-            },
-            error: (error, stackTrace) => ErrorPage(error.toString()),
-            loading: () => const Loader(),
-          ),
-    );
-  }
+ 
 }

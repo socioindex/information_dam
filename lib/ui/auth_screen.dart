@@ -24,6 +24,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   final _logInEmailControl = TextEditingController();
   final _logInPassControl = TextEditingController();
+  bool _obscurePassword = true;
+
+  Widget get _obscurePasswordSwitch => ElevatedButton(
+    onPressed: () {
+      setState(() {
+        _obscurePassword = !_obscurePassword;
+      });
+    },
+    child: const Text('show password'),
+  );
 
   void _createAccount() {
     ref
@@ -50,13 +60,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          constraints: BoxConstraints(maxHeight: 190),
+          constraints: BoxConstraints(maxHeight: 250),
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
                 customTextField(controller: _logInEmailControl, hintText: "email"),
-                customTextField(controller: _logInPassControl, hintText: 'password', obscureText: true),
+                customTextField(controller: _logInPassControl, hintText: 'password', obscureText: _obscurePassword),
                 const SizedBox(height: 15),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -88,7 +98,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _logIn();
       }
     });
-    
   }
 
   void _showNoLocoLogin() {
@@ -108,8 +117,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     const SizedBox(width: 40),
                   ],
                 ),
-                customTextField(controller: _emailController, hintText: "email"),
-                customTextField(controller: _passwordController, hintText: 'password', obscureText: true),
+                customTextField(controller: _logInEmailControl, hintText: "email"),
+
+                customTextField(controller: _logInPassControl, hintText: 'password', obscureText: _obscurePassword),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -124,6 +134,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                       OutlinedButton(
                         onPressed: () {
+                          //TODO implement NOLOCATION functions
                           Navigator.of(context).pop(true);
                         },
                         child: const Text('Sign In'),
@@ -197,6 +208,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              Text("Create Your Account Here"),
               Column(
                 children: [
                   const Text('email'),
@@ -206,12 +218,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               Column(
                 children: [
                   const Text('password'),
-                  customTextField(controller: _passwordController, outlineField: true, obscureText: true),
+                  customTextField(controller: _passwordController, outlineField: true, obscureText: _obscurePassword),
+                  _obscurePasswordSwitch,
                 ],
               ),
 
               CheckboxListTile(
-                title: const Text("click if you would like to recieve communication from the project team."),
+                title: const Text("select if you would like to recieve communication from the project team."),
                 value: _wantsCommunication,
                 onChanged: (value) {
                   setState(() {
