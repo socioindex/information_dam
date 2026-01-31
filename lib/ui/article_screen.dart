@@ -90,7 +90,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Text("limit one comment or interaction per article"),
-                TextField(controller: _commentController, maxLength: 140),
+                TextField(controller: _commentController, maxLength: 140, textAlign: TextAlign.center,),
                 const SizedBox(height: 1),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -215,13 +215,17 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
       if (comment.commentId == widget.person.uid) {
         return _authoredTile(comment, index);
       } else {
-        return ListTile(title: Center(child: Text(comment.commentText)));
+        return ListTile(
+          title: Center(child: Text(comment.commentText)),
+          subtitle: Text("- ${comment.authorAlias}"),
+        );
       }
     }
     if (_likedCommentId == comment.commentId) {
       return ListTile(
         tileColor: goodColorShade,
         title: Center(child: Text(comment.commentText)),
+        subtitle:  Text("- ${comment.authorAlias}"),
         onTap: () {
           setState(() {
             _likedCommentId = null;
@@ -231,6 +235,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     } else {
       return ListTile(
         title: Center(child: Text(comment.commentText)),
+        subtitle:  Text("- ${comment.authorAlias}"),
         onTap: () {
           setState(() {
             _likedCommentId = comment.commentId;

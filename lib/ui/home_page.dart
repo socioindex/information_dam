@@ -4,7 +4,6 @@ import 'package:information_dam/features/articles/articles_controller.dart';
 import 'package:information_dam/model/article.dart';
 import 'package:information_dam/model/person.dart';
 import 'package:information_dam/navigation.dart';
-import 'package:information_dam/ui/article_screen.dart';
 import 'package:information_dam/utility/error_loader.dart';
 
 import '../features/authentication/auth_controller.dart';
@@ -40,6 +39,25 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == "info") {
+              GoTo.infoScreen(context);
+            }
+            if (value == "color") {}
+            if (value == "out") {
+              ref.read(authControllerProvider.notifier).signOut(context);
+            }
+          },
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(value: "info", child: const Text('Info')),
+              PopupMenuItem(value: "color", child: const Text('Color')),
+              PopupMenuItem(value: "out", child: const Text('logOut(4testing)')),
+            ];
+          },
+          child: const Text('options'),
+        ),
         actions: [TextButton(onPressed: () => GoTo.createPostScreen(context), child: const Text("create"))],
         centerTitle: true,
         //TODO leading menu for info and stuff
