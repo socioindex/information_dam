@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 AppBar customAppBar(String title, {required bool hasInfoButton, required BuildContext context, List<Widget>? actions}) => AppBar(
   centerTitle: true,
   title: Text(title),
-  leading: hasInfoButton ? TextButton(onPressed: () => GoTo.infoScreen(context), child: const Text('info')) : null,
+  leading: hasInfoButton ? Center(child: GestureDetector(onTap: () => GoTo.infoScreen(context), child: const Text('info'))) : null,
   actions: actions,
 );
 

@@ -200,7 +200,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         "So Glad You're Here!",
         hasInfoButton: true,
         context: context,
-        actions: [TextButton(onPressed: _showLocatedLogIn, child: const Text('Sign In'))],
+        actions: [Center(child: GestureDetector(onTap: _showLocatedLogIn, child: const Text('Sign In')))],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

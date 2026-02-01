@@ -10,8 +10,6 @@ import 'package:information_dam/ui/home_page.dart';
 import 'package:information_dam/utility/error_loader.dart';
 import 'package:information_dam/utility/firebase_tools/firebase_options.dart';
 
-final kTheme = ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF006633)));
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -37,7 +35,7 @@ class _AppState extends ConsumerState<App> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Information Dam",
-      theme:ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: ref.watch(colorChangerProvider).goodColor)),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: ref.watch(colorChangerProvider).goodColor), useMaterial3: false),
       home: ref
           .watch(authStateChangeProvider)
           .when(

@@ -40,32 +40,44 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: PopupMenuButton<String>(
-          onSelected: (value) {
-            if (value == "info") {
-              GoTo.infoScreen(context);
-            }
-            if (value == "color") {
-              GoTo.chooseColorPage(context);
-            }
-            if (value == "out") {
-              ref.read(authControllerProvider.notifier).signOut(context);
-            }
-          },
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(value: "info", child: const Text('Info')),
-              PopupMenuItem(value: "color", child: const Text('Color')),
-              PopupMenuItem(value: "out", child: const Text('logOut(4testing)')),
-            ];
-          },
-          child: const Text('options'),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == "info") {
+                  GoTo.infoScreen(context);
+                }
+                if (value == "color") {
+                  GoTo.chooseColorPage(context);
+                }
+                if (value == "out") {
+                  ref.read(authControllerProvider.notifier).signOut(context);
+                }
+              },
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(value: "info", child: const Text('Info')),
+                  PopupMenuItem(value: "color", child: const Text('Choose Colors')),
+                  PopupMenuItem(value: "out", child: const Text('logOut(4testing)')),
+                ];
+              },
+              child: const Icon(Icons.menu),
+            ),
+          ),
         ),
-        actions: [TextButton(onPressed: () => GoTo.createPostScreen(context), child: const Text("create"))],
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: GestureDetector(onTap: () => GoTo.createPostScreen(context), child: const Text("create")),
+            ),
+          ),
+        ],
         centerTitle: true,
         //TODO leading menu for info and stuff
-        title: TextButton(
-          onPressed: () {
+        title: GestureDetector(
+          onTap: () {
             showDialog(
               context: context,
               builder: (context) => SimpleDialog(
@@ -171,18 +183,30 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Row(
             mainAxisAlignment: article.url == null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.spaceEvenly,
             children: [
-              leading ?? const SizedBox(width: 10),
+              leading ?? const SizedBox(width: 24),
+
+              const SizedBox(width: 24),
               Expanded(
-                child: Column(
+                child: Row(
                   children: [
-                    Text(article.title, textAlign: TextAlign.center),
-                    Text("- ${article.authorAlias} -", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+                    SizedBox(width: 20),
+                    if (article.url != null) const Icon(Icons.link, size: 18),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(article.title, textAlign: TextAlign.center),
+                          Text("- ${article.authorAlias} -", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 24),
                   ],
                 ),
               ),
-
-              if (article.url != null) const Icon(Icons.link),
-              trailing ?? const SizedBox(width: 10),
+              const SizedBox(width: 24),
+              // if (article.url != null) const SizedBox(width: 20),
+              trailing ?? const SizedBox(width: 24),
             ],
           ),
         ),
