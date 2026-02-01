@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/authentication/auth_controller.dart';
 import 'package:information_dam/features/authentication/auth_repository.dart';
+import 'package:information_dam/features/colour_motivator.dart';
 import 'package:information_dam/ui/auth_screen.dart';
 import 'package:information_dam/ui/home_page.dart';
 import 'package:information_dam/utility/error_loader.dart';
@@ -36,7 +37,7 @@ class _AppState extends ConsumerState<App> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Information Dam",
-      theme: kTheme,
+      theme:ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: ref.watch(colorChangerProvider).goodColor)),
       home: ref
           .watch(authStateChangeProvider)
           .when(

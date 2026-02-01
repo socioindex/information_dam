@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:information_dam/features/articles/articles_controller.dart';
+import 'package:information_dam/features/colour_motivator.dart';
 import 'package:information_dam/model/article.dart';
 import 'package:information_dam/model/person.dart';
 import 'package:information_dam/navigation.dart';
@@ -9,8 +10,6 @@ import 'package:information_dam/utility/error_loader.dart';
 import '../features/authentication/auth_controller.dart';
 
 //TODO custom colors
-const Color kGoodColor = Colors.green;
-const Color kBadColor = Colors.red;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -22,6 +21,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late Person _person;
   final List<String> _articlesViewed = [];
+  late ColorChoice colours;
 
   void _unlockVoting(String articleId) {
     setState(() {
@@ -33,6 +33,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _person = ref.read(personProvider)!;
+    colours = ref.read(colorChangerProvider);
   }
 
   @override
@@ -44,7 +45,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             if (value == "info") {
               GoTo.infoScreen(context);
             }
-            if (value == "color") {}
+            if (value == "color") {
+              GoTo.chooseColorPage(context);
+            }
             if (value == "out") {
               ref.read(authControllerProvider.notifier).signOut(context);
             }
@@ -136,13 +139,15 @@ class _HomePageState extends ConsumerState<HomePage> {
         onPressed: () {
           if (isLiked) {
             ref.read(articlesControllerProvider.notifier).unAgree(article.articleId, _person.uid);
+            _articlesViewed.remove(article.articleId);
           } else {
             ref.read(articlesControllerProvider.notifier).unDisagree(article.articleId, _person.uid);
+            _articlesViewed.remove(article.articleId);
           }
         },
         icon: const Icon(Icons.undo),
       ),
-      colour: isLiked ? kGoodColor.withAlpha(100) : kBadColor.withAlpha(100),
+      colour: isLiked ? colours.goodColor.withAlpha(80) : colours.badColor.withAlpha(80),
     );
   }
 
@@ -150,7 +155,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return _basicCard(
       isFlat: true,
       article,
-      colour: kGoodColor.withAlpha(50),
+      colour: colours.goodColor.withAlpha(40),
       locked: false,
       leading: Column(children: [const Text("agreement"), Text(article.scoreStr)]),
     );
@@ -167,11 +172,13 @@ class _HomePageState extends ConsumerState<HomePage> {
             mainAxisAlignment: article.url == null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.spaceEvenly,
             children: [
               leading ?? const SizedBox(width: 10),
-              Column(
-                children: [
-                  Text(article.title),
-                  Text("- ${article.authorAlias} -", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
-                ],
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(article.title, textAlign: TextAlign.center),
+                    Text("- ${article.authorAlias} -", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+                  ],
+                ),
               ),
 
               if (article.url != null) const Icon(Icons.link),
@@ -180,7 +187,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
       ),
-      onTap: () => GoTo.articleDetailScreen(context, article, _person, _unlockVoting),
+      onTap: () => GoTo.articleDetailScreen(context, article, _person, _unlockVoting, colours),
     );
   }
 }

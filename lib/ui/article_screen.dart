@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:information_dam/features/colour_motivator.dart';
 import 'package:information_dam/features/comments/comments_controller.dart';
 import 'package:information_dam/features/comments/comments_repository.dart';
 import 'package:information_dam/model/article.dart';
@@ -18,12 +19,13 @@ String getMakeshiftTitle(String status) {
   }
 }
 
-Color goodColorShade = Colors.green.withAlpha(100);
+// Color goodColorShade = Colors.green.withAlpha(100);
 
 class ArticleScreen extends ConsumerStatefulWidget {
   final Article article;
   final Person person;
-  const ArticleScreen(this.article, this.person, {super.key});
+  final ColorChoice colours; 
+  const ArticleScreen(this.article, this.person, this.colours, {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ArticleScreenState();
@@ -90,7 +92,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Text("limit one comment or interaction per article"),
-                TextField(controller: _commentController, maxLength: 140, textAlign: TextAlign.center,),
+                TextField(controller: _commentController, maxLength: 140, textAlign: TextAlign.center),
                 const SizedBox(height: 1),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -223,9 +225,9 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     }
     if (_likedCommentId == comment.commentId) {
       return ListTile(
-        tileColor: goodColorShade,
+        tileColor: widget.colours.goodColor.withAlpha(50),
         title: Center(child: Text(comment.commentText)),
-        subtitle:  Text("- ${comment.authorAlias}"),
+        subtitle: Text("- ${comment.authorAlias}"),
         onTap: () {
           setState(() {
             _likedCommentId = null;
@@ -235,7 +237,7 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     } else {
       return ListTile(
         title: Center(child: Text(comment.commentText)),
-        subtitle:  Text("- ${comment.authorAlias}"),
+        subtitle: Text("- ${comment.authorAlias}"),
         onTap: () {
           setState(() {
             _likedCommentId = comment.commentId;
