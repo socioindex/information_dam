@@ -29,6 +29,12 @@ class NameGenerator {
       "Xenial",
       "Yielding",
       "Zombified",
+      "Angry",
+      "Bilingual",
+      "Cantankerous",
+      "Dangerous",
+
+
     ];
   }
 
@@ -60,6 +66,14 @@ class NameGenerator {
       "Xylophone",
       "Yak",
       "Zenith",
+      "Astronaut",
+      "Bump",
+      "Crutch",
+      "Doorbell",
+      "Egg",
+      "Flower",
+      ""
+
     ];
   }
 

@@ -5,6 +5,7 @@ import 'package:information_dam/features/colour_motivator.dart';
 import 'package:information_dam/model/article.dart';
 import 'package:information_dam/model/person.dart';
 import 'package:information_dam/navigation.dart';
+import 'package:information_dam/ui/article_detail.dart';
 import 'package:information_dam/utility/error_loader.dart';
 
 import '../features/authentication/auth_controller.dart';
@@ -211,7 +212,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
       ),
-      onTap: () => GoTo.articleDetailScreen(context, article, _person, _unlockVoting, colours),
+      onTap: () => GoTo.articleDetails(context, article, _person, _unlockVoting),
     );
   }
 }

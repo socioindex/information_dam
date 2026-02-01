@@ -109,7 +109,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
               },
               controller: _titleController,
               maxLength: 70,
-              decoration:  InputDecoration(hintText: _titleOnly ? "statement" :"title"),
+              decoration: InputDecoration(hintText: _titleOnly ? "statement" : "title"),
             ),
           ),
           CheckboxListTile(
@@ -201,7 +201,7 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
       ),
     ),
   );
-//TODO make this page match articleDetail
+  //TODO make this page match articleDetail
   Widget get _page3 => Scaffold(
     appBar: AppBar(
       title: const Text('Your Post:'),
@@ -217,15 +217,16 @@ class _CreateArticleScreenState extends ConsumerState<CreateArticleScreen> {
     body: Padding(
       padding: const EdgeInsets.all(8.0),
       child: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
-            ArticleDetail.titleText(validTextValueReturner(_titleController)),
-            if(_hasLink)
-            ArticleDetail.urlButton(validTextValueReturner(_urlController), context),
-            if(_hasContent)
-            ArticleDetail.contentText(validTextValueReturner(_contentController)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ArticleStyles.titleText(validTextValueReturner(_titleController)),
+            if (_hasLink) ArticleStyles.urlButton(validTextValueReturner(_urlController), context),
+            if (_hasContent) ArticleStyles.contentText(validTextValueReturner(_contentController)),
             ElevatedButton(onPressed: _submitPaperWork, child: const Text("Post!")),
-            const SizedBox(height: 10,)
-        ]),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     ),
   );

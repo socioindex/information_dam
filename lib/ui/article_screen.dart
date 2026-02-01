@@ -24,7 +24,7 @@ String getMakeshiftTitle(String status) {
 class ArticleScreen extends ConsumerStatefulWidget {
   final Article article;
   final Person person;
-  final ColorChoice colours; 
+  final ColorChoice colours;
   const ArticleScreen(this.article, this.person, this.colours, {super.key});
 
   @override
@@ -153,12 +153,12 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ArticleDetail.titleText(widget.article.title),
+                      ArticleStyles.titleText(widget.article.title),
 
                       Column(
                         children: [
-                          if (widget.article.url != null) ArticleDetail.urlButton(widget.article.url!, context),
-                          if (widget.article.content != null) ArticleDetail.contentText(widget.article.content!),
+                          if (widget.article.url != null) ArticleStyles.urlButton(widget.article.url!, context),
+                          if (widget.article.content != null) ArticleStyles.contentText(widget.article.content!),
                           ElevatedButton(
                             onPressed: () {
                               if (_listOfComments == null) {

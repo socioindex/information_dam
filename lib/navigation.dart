@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:information_dam/features/colour_motivator.dart';
 import 'package:information_dam/model/article.dart';
+import 'package:information_dam/ui/article_detail.dart';
 import 'package:information_dam/ui/article_screen.dart';
 import 'package:information_dam/ui/colours_page.dart';
 import 'package:information_dam/ui/create_article_screen.dart';
@@ -17,13 +18,23 @@ class GoTo {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateArticleScreen()));
   }
 
-  static articleDetailScreen(BuildContext context, Article article, Person person, Function? unlockVoting, ColorChoice colours) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ArticleScreen(article, person, colours))).then((value) {
+  static articleDetails(BuildContext context, Article article, Person person, Function? unlockVoting) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ArticleDetail(article, person))).then((value) {
       if (unlockVoting != null) {
         unlockVoting(article.articleId);
       }
     });
   }
+
+  // static articleDetailScreen(BuildContext context, Article article, Person person, Function? unlockVoting, ColorChoice colours) {
+  //   Navigator.of(context).push(MaterialPageRoute(builder: (context) => ArticleDetail(article, person)));
+
+  //   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ArticleScreen(article, person, colours))).then((value) {
+  //   //   if (unlockVoting != null) {
+  //   //     unlockVoting(article.articleId);
+  //   //   }
+  //   // });
+  // }
 
   static chooseColorPage(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ColoursPage()));

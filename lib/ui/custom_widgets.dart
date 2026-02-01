@@ -5,7 +5,11 @@ import 'package:url_launcher/url_launcher.dart';
 AppBar customAppBar(String title, {required bool hasInfoButton, required BuildContext context, List<Widget>? actions}) => AppBar(
   centerTitle: true,
   title: Text(title),
-  leading: hasInfoButton ? Center(child: GestureDetector(onTap: () => GoTo.infoScreen(context), child: const Text('info'))) : null,
+  leading: hasInfoButton
+      ? Center(
+          child: GestureDetector(onTap: () => GoTo.infoScreen(context), child: const Text('info')),
+        )
+      : null,
   actions: actions,
 );
 
@@ -18,51 +22,57 @@ TextField customTextField({required TextEditingController controller, String? hi
   );
 }
 
-class ArticleDetail {
+class ArticleStyles {
   static titleText(String title) {
-    return Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold));
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 
-  static articleDetailURLStyle(String title) {
-    return TextStyle(fontSize: 20);
-  }
-
-  static urlButton(String url, BuildContext context) => TextButton(
-    onPressed: () async {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("You are about to go to $url"),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('OK'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('NO WAY'),
-              ),
-            ],
-          );
-        },
-      ).then((value) async {
-        if (value == true) {
-          final Uri launderedUrl = Uri.parse(url);
-          if (!await launchUrl(launderedUrl)) {
-            throw Exception('Could not launch $url');
+  static urlButton(String url, BuildContext context) => Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: TextButton(
+      onPressed: () async {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("You are about to go to $url"),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const Text('OK'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('NO WAY'),
+                ),
+              ],
+            );
+          },
+        ).then((value) async {
+          if (value == true) {
+            final Uri launderedUrl = Uri.parse(url);
+            if (!await launchUrl(launderedUrl)) {
+              throw Exception('Could not launch $url');
+            }
           }
-        }
-      });
-    },
-    child: Text(url, style: _urlStyle),
+        });
+      },
+      child: Text(url, style: _urlStyle),
+    ),
   );
 
-  static TextStyle get _urlStyle => TextStyle(fontSize: 20);
+  static TextStyle get _urlStyle => TextStyle(fontSize: 16);
 
   static contentText(String content) {
     return Text(content);
